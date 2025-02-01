@@ -91,14 +91,7 @@ const loadShopping = async (req, res) => {
 // Signup Function
 const signup = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.render("signup", { 
-                errors: errors.array(),
-                oldInput: req.body 
-            });
-        }
-
+    
         const { name, email, phone, password, confirmPassword } = req.body;
 
         if (password !== confirmPassword) {
@@ -136,8 +129,9 @@ const signup = async (req, res) => {
             otp,
             otpExpiry: Date.now() + OTP_EXPIRY_TIME
         };
-
-        res.render("verify-otp", { email });
+        res.status(200).json({ 
+            message: "verify otp now" 
+        });
     } catch (error) {
         console.error("Signup error:", error);
         res.status(500).render("error", { message: "Error during signup" });
