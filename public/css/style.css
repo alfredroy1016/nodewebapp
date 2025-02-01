@@ -1531,10 +1531,10 @@ ol {
 	width: 95px;
 	display: -webkit-box;
 	display: -ms-flexbox;
-	display: flex;
+    display: flex;
 	-webkit-box-align: center;
 	-ms-flex-align: center;
-	align-items: center;
+    align-items: center;
 	-webkit-box-pack: center;
 	-ms-flex-pack: center;
 	justify-content: center;
@@ -2094,10 +2094,10 @@ ol {
 	text-align: center;
 	display: -webkit-box;
 	display: -ms-flexbox;
-	display: flex;
+    display: flex;
 	-webkit-box-align: center;
 	-ms-flex-align: center;
-	align-items: center;
+    align-items: center;
 	-webkit-box-pack: center;
 	-ms-flex-pack: center;
 	justify-content: center;
@@ -2131,7 +2131,7 @@ ol {
 }
 
 .about__item h4 {
-	color: #111111;
+    color: #111111;
 	font-weight: 700;
 	margin-bottom: 10px;
 }
@@ -2275,7 +2275,7 @@ ol {
 }
 
 .team__item span {
-	font-size: 15px;
+    font-size: 15px;
 	display: block;
 	color: #b7b7b7;
 }
@@ -2314,8 +2314,8 @@ ol {
 .shopping__cart__table table thead tr th {
 	color: #111111;
 	font-size: 16px;
-	font-weight: 700;
-	text-transform: uppercase;
+    font-weight: 700;
+    text-transform: uppercase;
 	padding-bottom: 25px;
 }
 
@@ -2432,7 +2432,7 @@ ol {
 }
 
 .cart__discount form {
-	position: relative;
+    position: relative;
 }
 
 .cart__discount form input {
@@ -3848,4 +3848,51 @@ ol {
 	.categories__text:before {
 		height: 250px;
 	}
+}
+
+/* Add these to your existing signup styles */
+
+.error-message {
+    color: #e53637;
+    font-size: 14px;
+    margin-top: 5px;
+    display: none;
+}
+
+.signup__form input.error {
+    border-color: #e53637;
+}
+
+/* Password strength indicator (optional) */
+.password-strength {
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+.password-strength.weak {
+    color: #e53637;
+}
+
+.password-strength.medium {
+    color: #ffa500;
+}
+
+.password-strength.strong {
+    color: #28a745;
+}
+
+/* Form group spacing */
+.signup__form .form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+/* Optional: Add password visibility toggle */
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
 }
