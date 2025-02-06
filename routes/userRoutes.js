@@ -22,7 +22,7 @@ router.get("/signup", userController.loadSignup);
 router.post("/signup", userController.signup);
 router.get("/login", (req, res) => {
     if (req.isAuthenticated() || req.session.userId) {
-        return res.redirect('/shop');
+        return res.redirect('/');
     }
     res.render('login', { 
         error: req.flash('error'),
@@ -34,7 +34,7 @@ router.get("/verify-otp", userController.loadVerifyOtp);
 router.post("/verify-otp", userController.verifyOtp);
 // Protected routes
 router.get("/shop", userController.loadShopping);
-router.get("/logout", isAuthenticated, userController.logout);
+router.get("/logout",  userController.logout);
 // Google Auth routes
 router.get('/auth/google',
     passport.authenticate('google', { 

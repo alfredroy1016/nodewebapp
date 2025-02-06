@@ -3896,3 +3896,20 @@ ol {
     cursor: pointer;
     color: #666;
 }
+
+
+
+
+.dropdown-menu {
+    display: none;
+	color: #000;
+}
+
+.dropdown:hover .dropdown-menu,
+.dropdown.show .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu a:hover {
+    background-color: #1a1a1a;
+}

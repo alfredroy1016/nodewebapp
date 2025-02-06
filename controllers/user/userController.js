@@ -130,7 +130,7 @@ const signup = async (req, res) => {
             otpExpiry: Date.now() + OTP_EXPIRY_TIME
         };
         res.status(200).json({ 
-            message: "verify otp now" 
+            message: `verify otp now ${req.session.signupData.email}   `
         });
     } catch (error) {
         console.error("Signup error:", error);
@@ -206,7 +206,7 @@ const login = async (req, res) => {
         // Redirect to the shop page after successful login
         res.redirect('/'); // Change this to the correct route for the shop page
     } catch (error) {
-        console.error("Login error:", error);
+        console.error("Login e+rror:", error);
         res.status(500).json({ message: 'Error during login' });
     }
 };
@@ -215,7 +215,8 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
     try {
         req.session.destroy();
-        res.redirect('/login');
+        console.log("logout successfully")
+        res.redirect('/');
     } catch (error) {
         console.error("Logout error:", error);
         res.status(500).render("error", { message: "Error during logout" });

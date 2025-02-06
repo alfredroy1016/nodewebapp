@@ -7,7 +7,7 @@ const session = require("express-session");
 const flash = require('connect-flash');
 const passport = require('passport');
 
-
+const adminRouter=require("./routes/adminRoutes")
 const userRouter = require("./routes/userRoutes");
 db();
 
@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
     secret: process.env.SESSION_SECRET, // Secure secret for signing session cookies
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized:true,
     cookie: {
         secure: process.env.NODE_ENV === 'production',  // Secure cookies only in production
         httpOnly: true,  // Prevents client-side JS from accessing the cookie
@@ -27,6 +27,7 @@ app.use(session({
         sameSite: 'strict'  // Prevents cross-site cookie sending
     }
 }));
+
 app.use(passport.initialize());
 
 // // Flash middleware
@@ -41,7 +42,7 @@ app.use('/public', express.static('public'));
 app.use(express.static('public'));
 // Routes
 app.use("/", userRouter);
-
+app.use("/admin",adminRouter)
 // 404 error handling
 app.use((req, res, next) => {
   res.status(404).render('pageNotFound'); // Make sure pageNotFound.ejs exists
