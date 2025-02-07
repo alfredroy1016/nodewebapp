@@ -15,14 +15,15 @@ const categorySchema= new mongoose.Schema({
         type:Boolean,
         default:true,
      },
-     categoryOffer:{
+     offerPrice:{
         type:Number,
-        default:0
+        default:null
      },
      createdAt:{
         type:Date,
         default:Date.now
-     }
+     },
+  
 })
 
 

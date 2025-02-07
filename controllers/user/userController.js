@@ -188,12 +188,16 @@ const login = async (req, res) => {
         if (!user) {
             return res.status(400).json({ message: 'User not found' });
         }
-
+        
         // Check password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid password' });
         }
+        if (user.isBlocked) {
+            return res.status(400).json({ message: 'User is blocked' });
+        }
+
 
         // Store user information in session
         req.session.user = {

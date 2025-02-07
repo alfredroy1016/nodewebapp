@@ -169,6 +169,167 @@
                 z-index: 1000;
             }
         }
+
+
+        /* General Styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 0;
+}
+
+.dashboard-content {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin: 20px;
+}
+
+/* Header Styling */
+h1 {
+    color: #333;
+    font-size: 28px;
+    margin-bottom: 30px;
+}
+
+/* Search Bar Styling */
+.card-header {
+    padding: 20px;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.card-header form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-header .input-group {
+    width: 500px;
+    margin-left: 230px;
+}
+
+.card-header .form-control {
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.card-header button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.card-header button:hover {
+    background-color: #0056b3;
+}
+
+/* Table Styling */
+.table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #f4f7fc;
+    color: #555;
+    font-weight: bold;
+}
+
+.table td {
+    background-color: #ffffff;
+    color: #666;
+}
+
+.table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table td button {
+    width: 80px;
+    border-radius: 30px;
+    padding: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.table td button a {
+    color: white;
+    text-decoration: none;
+}
+
+.table td .btn-danger {
+    background-color: #ff4d4f;
+    border: none;
+}
+
+.table td .btn-danger:hover {
+    background-color: #ff1a1a;
+}
+
+.table td .btn-success {
+    background-color: #28a745;
+    border: none;
+}
+
+.table td .btn-success:hover {
+    background-color: #218838;
+}
+
+/* Pagination Styling */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.pagination .page-item {
+    margin: 0 5px;
+}
+
+.pagination .page-link {
+    background-color: #f1f3f5;
+    color: #007bff;
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.pagination .page-link:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+
+
+
     </style>
 </head>
 <body>
@@ -268,12 +429,12 @@
                     </ul>
                 </div>
             </header>
-            
+<!--             
             <main class="main-wrap">
                 <h1 class="page-title">Dashboard</h1>
             </main>
         </div>
-    </div>
+    </div> -->
 
     <script>
       // Dropdown toggle functionality
