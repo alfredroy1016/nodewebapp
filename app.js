@@ -43,6 +43,8 @@ app.use(express.static('public'));
 // Routes
 app.use("/", userRouter);
 app.use("/admin",adminRouter)
+
+
 // 404 error handling
 app.use((req, res, next) => {
   res.status(404).render('pageNotFound'); // Make sure pageNotFound.ejs exists

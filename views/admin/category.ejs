@@ -165,7 +165,7 @@
     margin-top: 20px;
   }
 
-  </style>
+</style>
 </head>
 <body>
   <section class="content-main">
@@ -220,32 +220,38 @@
                   </tr>
                 </thead>
                 <tbody>
-                    <%cat.reverse().forEach((category,index)=>{%>   
+                    <% cat.reverse().forEach((category, index) => { %>   
                   <tr>
                     <td></td>
-                    <td class="text-start"><%=category.name %></td>
-                    <td class="text-start"><%=category.description%></td>
-                        <td class="text-start">
-                            <%= category.offerPrice ? category.offerPrice : "No Offer" %>
-                          </td>
-                          <td class="text-start">
-                            <button class="btn btn-info" onclick="addOffer('<%= category._id %>')">Add Offer</button>
-                            <button class="btn btn-danger" onclick="removeOffer('<%= category._id %>')">Remove</button>
-                          </td>
+                    <td class="text-start"><%= category.name %></td>
+                    <td class="text-start"><%= category.description %></td>
                     <td class="text-start">
-                      <span class="badge rounded-pill alert-success" style="width: 60px">Listed</span>
-                      <span class="badge rounded-pill alert-danger" style="width: 60px">Unlisted</span>
+                      <%= category.offerPrice ? category.offerPrice : "No Offer" %>
                     </td>
                     <td class="text-start">
-                      <button class="btn btn-danger" style="width: 70px">
-                        <a href="#" class="text-white">Unlist</a>
-                      </button>
-                      <button class="btn btn-success" style="width: 70px">
-                        <a href="" class="text-white">List</a>
-                      </button>
+                      <button class="btn btn-info" onclick="addOffer('<%= category._id %>')">Add Offer</button>
+                      <button class="btn btn-danger" onclick="removeOffer('<%= category._id %>')">Remove</button>
                     </td>
                     <td class="text-start">
-                      <a href="" class="btn btn-info text-white">Edit</a>
+                      <% if (category.status === "Listed") { %>
+                        <span class="badge rounded-pill alert-success" style="width: 60px">Listed</span>
+                      <% } else { %>
+                        <span class="badge rounded-pill alert-danger" style="width: 60px">Unlisted</span>
+                      <% } %>
+                    </td>
+                    <td class="text-start">
+                      <% if (category.status === "Listed") { %>
+                        <button class="btn btn-danger toggle-status" data-id="<%= category._id %>" data-status="Listed" style="width: 70px">
+                          Unlist
+                        </button>
+                      <% } else { %>
+                        <button class="btn btn-success toggle-status" data-id="<%= category._id %>" data-status="Unlisted" style="width: 70px">
+                          List
+                        </button>
+                      <% } %>
+                    </td>
+                    <td class="text-start">
+                      <a href="/admin/editCategory/<%= category._id %>" class="btn btn-info text-white">Edit</a>
                     </td>
                   </tr>
                   <% }) %>
@@ -256,20 +262,64 @@
         </div>
       </div>
     </div>
-    <div class="pagination-container">
-        <% if (currentPage > 1) { %>
-        <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
-        <% } %> <% for (let i = 1; i <= totalPages; i++) { %> <% if (i ===
-        currentPage) { %>
-        <span class="current-page"><%= i %></span>
+    <div class="pagination-container text-center mt-4">
+      <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>" class="btn btn-secondary">&laquo; Previous</a>
+      <% } %> 
+      <% for (let i = 1; i <= totalPages; i++) { %> 
+        <% if (i === currentPage) { %>
+          <span class="btn btn-primary"><%= i %></span>
         <% } else { %>
-        <a href="?page=<%= i %>"><%= i %></a>
-        <% } %> <% } %> <% if (currentPage < totalPages) { %>
-        <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
-        <% } %>
-      </div>
-  
+          <a href="?page=<%= i %>" class="btn btn-outline-primary"><%= i %></a>
+        <% } %> 
+      <% } %> 
+      <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>" class="btn btn-secondary">Next &raquo;</a>
+      <% } %>
+    </div>
   </section>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".toggle-status").forEach(button => {
+        button.addEventListener("click", function () {
+          const categoryId = this.getAttribute("data-id");
+          const currentStatus = this.getAttribute("data-status");
+
+          Swal.fire({
+            title: "Are you sure?",
+            text: `You want to ${currentStatus === "Listed" ? "Unlist" : "List"} this category?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, change it!",
+            cancelButtonText: "No, cancel!"
+          }).then((result) => {
+            if (result.isConfirmed) {
+              fetch('/admin/toggleCategoryStatus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ categoryId, status: currentStatus })
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success) {
+                  Swal.fire("Success", `Category ${data.status} successfully!`, "success")
+                  .then(() => window.location.reload());
+                } else {
+                  Swal.fire("Error", data.message, "error");
+                }
+              })
+              .catch(error => {
+                console.error("Error:", error);
+                Swal.fire("Error", "Something went wrong", "error");
+              });
+            }
+          });
+        });
+      });
+    });
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script>
@@ -400,6 +450,46 @@
           }
       });
   }
+
+
+
+  $(document).ready(function () {
+    $(".toggle-status").click(function () {
+        const categoryId = $(this).data("id");
+        const currentStatus = $(this).data("status");
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: `You want to ${currentStatus === "Listed" ? "Unlist" : "List"} this category?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, change it!",
+            cancelButtonText: "No, cancel!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/admin/toggleCategoryStatus', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ categoryId, status: currentStatus })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire("Success", `Category ${data.status} successfully!`, "success");
+                        setTimeout(() => { window.location.reload(); }, 1500);
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    Swal.fire("Error", "Something went wrong", "error");
+                });
+            }
+        });
+    });
+});
+
 
 </script>
 

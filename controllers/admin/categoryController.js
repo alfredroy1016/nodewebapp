@@ -97,9 +97,60 @@ const removeCategoryOffer = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+const toggleCategoryStatus = async (req, res) => {
+    try {
+        const { categoryId, status } = req.body;
+        const newStatus = status === "Listed" ? "Unlisted" : "Listed";
+
+        const updatedCategory = await Category.findByIdAndUpdate(
+            categoryId,
+            { status: newStatus },
+            { new: true }
+        );
+
+        if (!updatedCategory) {
+            return res.status(404).json({ success: false, message: "Category not found" });
+        }
+
+        res.json({ success: true, message: `Category ${newStatus}`, status: newStatus });
+    } catch (error) {
+        console.error("Error updating category status:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+
+const getEditCategory = async (req, res) => {
+    try {
+        const category = await Category.findById(req.params.id);
+        if (!category) {
+            return res.status(404).render("admin/editCategory", { error: "Category not found" });
+        }
+        res.render("editCategory", { category });
+    } catch (error) {
+        console.error("Error fetching category for edit:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
+
+const updateCategory = async (req, res) => {
+    try {
+        const { name, description } = req.body;
+        await Category.findByIdAndUpdate(req.params.id, { name, description });
+
+        res.redirect("/admin/category"); // Redirect back to category list
+    } catch (error) {
+        console.error("Error updating category:", error);
+        res.status(500).send("Internal Server Error");
+    }
+};
 module.exports = {
     categoryInfo,
     addCategory,
     addCategoryOffer,
-    removeCategoryOffer
+    removeCategoryOffer,
+    toggleCategoryStatus,
+    getEditCategory,
+    updateCategory
 };

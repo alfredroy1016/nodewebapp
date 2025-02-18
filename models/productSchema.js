@@ -1,64 +1,17 @@
-const mongoose=require("mongoose");
-const {Schema}=mongoose;
+const mongoose = require("mongoose");
 
-constproductSchema =new Schema({
-    productName:{
-        type:String,
-        required:true,
-    },
-    description:{
-        type:String,
-        required:true,
-    },
-    brand:{
-        type:String,
-        required:true,
-    },
-    category:{
-        type:Schema.Types.objectId,
-        ref:"Category",
-        required:true,
-    },
-    regularPrice:{
-        type:Number,
-        required:true,
-    },
-    salePrice:{
-        type:Number,
-        required:true
-    },
-    productOffer:{
-        typo:Number,
-        default:0,
-    },
-    quantity:{
-        type:Number,
-        default:true
-    },
-    color:{
-        type:String,
-        required:true
-    },
-    productImage:{
-        type:[String],
-        required:true
-    },
-    isBlocked:{
-        type:Boolean,
-        default:false
-    },
-    status:{
-        type:String,
-        enum:["Available","out of stock","Discontinued"],
-        required:true,
-        default:"Available"
-    },
-   
+const productSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    price: { type: Number, required: true },
+    quantity: { type: Number, required: true },
+    color: { type: String, required: true },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
+    brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand", required: true },
+    image: { type: String, required: false }, // Image path (optional)
+    offerPrice: Number, // Add offer price field
+    quantity: Number,
+    status: { type: String, enum: ['Active', 'Blocked'], default: 'Active' }
+});
 
-},
-{timestamps:true})
-
-
-const product=mongoose.Model("product",productSchema);
-
-module.exports = product;
+module.exports = mongoose.model("Product", productSchema);

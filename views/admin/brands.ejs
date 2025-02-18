@@ -1,0 +1,202 @@
+<%- include("../../views/partials/admin/header") %>
+
+<!-- Include SweetAlert2 -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+<section class="content-main">
+  <div class="content-header">
+    <h2 class="content-title card-title">Brands</h2>
+  </div>
+  
+  <div class="card shadow-sm p-4">
+    <div class="card-body">
+      <div class="row">
+        
+        <!-- Brand Add Form -->
+        <div class="col-md-4 mb-4 mb-md-0">
+          <div class="p-4 border rounded bg-light shadow-sm">
+            <h5 class="text-center mb-4">Add Brand</h5>
+            <form method="post" action="/admin/brands/add" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Brand Name</label>
+                <input type="text" name="name" placeholder="Enter brand name" class="form-control" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Brand Image</label>
+                <input class="form-control border" name="brandImage" type="file" required />
+              </div>
+              <div class="d-grid">
+                <button class="btn btn-primary btn-lg fw-bold" type="submit">Add Brand</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Brand Table -->
+        <div class="col-md-8">
+          <div class="table-responsive shadow-lg p-3 bg-white rounded">
+            <table class="table table-bordered table-hover text-center align-middle">
+              <thead class="table-dark">
+                <tr>
+                  <th class="p-3">Brand</th>
+                  <th class="p-3">Logo</th>
+                  <th class="p-3">Status</th>
+                  <th class="p-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% brands.forEach(brand => { %>
+                <tr>
+                  <td class="fw-bold"><%= brand.name %></td>
+                  <td>
+                    <img src="<%= brand.image %>" alt="<%= brand.name %>" 
+                         class="img-thumbnail shadow-sm" 
+                         style="width: 60px; height: 60px; border-radius: 10px;" />
+                  </td>
+                  <td>
+                    <% if (brand.status === 'Blocked') { %>
+                      <span class="badge rounded-pill bg-danger px-3 py-2">Blocked</span>
+                    <% } else { %>
+                      <span class="badge rounded-pill bg-success px-3 py-2">Active</span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <a href="/admin/brands/toggle-status/<%= brand._id %>" 
+                      class="btn btn-sm <%= brand.status === 'Blocked' ? 'btn-success' : 'btn-warning' %> fw-bold px-3">
+                      <%= brand.status === 'Blocked' ? 'Unblock' : 'Block' %>
+                    </a>
+                  </td>
+                  <td>
+                    <button class="btn btn-danger btn-sm fw-bold delete-btn px-3" 
+                            data-id="<%= brand._id %>">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  // Add Brand
+  document.querySelector("form").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+
+    try {
+      const response = await fetch("/admin/brands/add", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: "success",
+          title: data.message,
+          showConfirmButton: false,
+          timer: 2000
+        }).then(() => location.reload());
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: data.message,
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong!",
+      });
+    }
+  });
+
+  // Toggle Brand Status
+  document.querySelectorAll(".toggle-status-btn").forEach(button => {
+    button.addEventListener("click", async function () {
+      const brandId = this.getAttribute("data-id");
+
+      try {
+        const response = await fetch(`/admin/brands/toggle-status/${brandId}`, {
+          method: "GET",
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire({
+            icon: "success",
+            title: data.message,
+            showConfirmButton: false,
+            timer: 2000
+          }).then(() => location.reload());
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: data.message,
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Something went wrong!",
+        });
+      }
+    });
+  });
+
+  // Delete Brand Confirmation
+  document.querySelectorAll(".delete-btn").forEach(button => {
+    button.addEventListener("click", function () {
+        const brandId = this.getAttribute("data-id");
+
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This action cannot be undone!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!"
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/brands/delete/${brandId}`, {
+                        method: "DELETE",
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: data.message,
+                            showConfirmButton: false,
+                            timer: 2000
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: data.message,
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Something went wrong!",
+                    });
+                }
+            }
+        });
+    });
+});
+</script>
+
+<%- include("../../views/partials/admin/footer") %>
