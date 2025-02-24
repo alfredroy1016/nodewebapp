@@ -27,18 +27,19 @@ router.post("/updateCategory/:id", categoryController.updateCategory);
 
 // 🔹 Brand Management
 router.get('/brands', getBrands);
-router.post('/brands/add', upload.single('brandImage'), addBrand);
+router.post("/brands/add", upload.single("brandImage"), addBrand);
 router.get('/brands/toggle-status/:id', toggleBrandStatus);
 router.delete('/brands/delete/:id', deleteBrand);
 
 // 🔹 Product Management
 router.get("/products", adminAuth, productController.getProducts);
 router.get("/addProduct", adminAuth, productController.getProductAddPage);
-router.post("/addProduct", upload.single("productImage"), productController.addProduct);
-router.post("/edit-product/:id", upload.single("productImage"), productController.updateProduct);
+router.post("/addProduct", upload.array("productImages", 4), productController.addProduct);
+router.get("/edit-product/:id", adminAuth, productController.getEditProductPage)
+router.post("/update-product/:id", upload.single("productImage"), productController.updateProduct);
 router.post("/delete-product/:id", productController.deleteProduct);
-router.get('/add-offer/:productId/:offerPrice',productController.addOffer);
-router.get('/remove-offer/:productId', productController.removeOffer);
+router.post('/add-offer/:productId', productController.addOffer);
+router.post('/remove-offer/:productId', productController.removeOffer);
 
 
 

@@ -53,7 +53,7 @@
                                 <td><%= product.name %></td>
                                 <td><%= product.brand ? product.brand.name : 'No Brand' %></td>
                                 <td><%= product.category ? product.category.name : 'No Category' %></td>
-                                <td>₹<%= product.price %></td>
+                                <td>₹<%= product.salePrice || '-' %></td>
                                 <td>₹<%= product.offerPrice || '-' %></td>
                                 <td><%= product.quantity %></td>
                                 
