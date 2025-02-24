@@ -180,11 +180,9 @@ const verifyOtp = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-       console.log('email',email)
-       console.log('password',password)
         // Find the user by email
         const user = await User.findOne({ email });
-        console.log('user',user)
+        // console.log('user',user)
         if (!user) {
             return res.status(400).json({ message: 'User not found' });
         }
@@ -206,9 +204,9 @@ const login = async (req, res) => {
             email: user.email,
             phone: user.phone // Optional, if you want to store phone as well
         };
-       console.log('entering the shop page')
+     
         // Redirect to the shop page after successful login
-        res.redirect('/'); // Change this to the correct route for the shop page
+        res.render('home',{user}); // Change this to the correct route for the shop page
     } catch (error) {
         console.error("Login e+rror:", error);
         res.status(500).json({ message: 'Error during login' });
@@ -241,52 +239,7 @@ const loadVerifyOtp = async (req, res) => {
     }
 };
 
-const resendOtp = async (req, res) => {
-    try {
-        const signupData = req.session.signupData;
-        
-        // Check if session data exists
-        if (!signupData || !signupData.email) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Session expired. Please sign up again." 
-            });
-        }
 
-        // Generate new OTP
-        const newOtp = generateOtp();
-        console.log("resend otp",newOtp)
-        
-        // Send new OTP via email
-        const emailSent = await sendVerificationEmail(signupData.email, newOtp);
-        
-        if (!emailSent) {
-            return res.status(500).json({ 
-                success: false, 
-                message: "Failed to send verification email" 
-            });
-        }
-
-        // Update session with new OTP and reset expiry
-        req.session.signupData = {
-            ...signupData,
-            otp: newOtp,
-            otpExpiry: Date.now() + OTP_EXPIRY_TIME
-        };
-
-        res.json({ 
-            success: true, 
-            message: "OTP resent successfully" 
-        });
-
-    } catch (error) {
-        console.error("Resend OTP error:", error);
-        res.status(500).json({ 
-            success: false, 
-            message: "Error resending OTP" 
-        });
-    }
-};
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -335,6 +288,126 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
+
+
+
+// Load Forgot Password Page
+const loadForgotPassword = async (req, res) => {
+    res.render("forgot-password", { errors: [], success: "" });
+};
+
+// Forgot Password: Send OTP to Email
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.render("forgot-password", { 
+                errors: [{ msg: "Email not registered" }], 
+                success: "" 
+            });
+        }
+
+        const otp = generateOtp();
+        const emailSent = await sendVerificationEmail(email, otp);
+
+        if (!emailSent) {
+            return res.render("forgot-password", { 
+                errors: [{ msg: "Failed to send verification email" }], 
+                success: "" 
+            });
+        }
+
+        // Store OTP in session
+        req.session.passwordReset = {
+            email,
+            otp,
+            otpExpiry: Date.now() + OTP_EXPIRY_TIME,
+        };
+
+        res.redirect(`/reset-password/${email}`);
+    } catch (error) {
+        console.error("Forgot Password Error:", error);
+        res.status(500).render("error", { message: "Error sending OTP" });
+    }
+};
+
+// Load Reset Password Page
+const loadResetPassword = async (req, res) => {
+    res.render("reset-password", { email: req.params.email, errors: [] });
+};
+
+// Reset Password: Verify OTP and Update Password
+const resetPassword = async (req, res) => {
+    try {
+        const { email, otp, newPassword, confirmPassword } = req.body;
+        const resetData = req.session.passwordReset;
+
+        if (!resetData || resetData.email !== email || Date.now() > resetData.otpExpiry) {
+            return res.render("reset-password", { 
+                email, 
+                errors: [{ msg: "OTP expired. Request a new one." }] 
+            });
+        }
+
+        if (otp !== resetData.otp) {
+            return res.render("reset-password", { 
+                email, 
+                errors: [{ msg: "Invalid OTP" }] 
+            });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.render("reset-password", { 
+                email, 
+                errors: [{ msg: "Passwords do not match" }] 
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+        await User.updateOne({ email }, { password: hashedPassword });
+
+        delete req.session.passwordReset;
+        res.redirect("/login");
+    } catch (error) {
+        console.error("Reset Password Error:", error);
+        res.status(500).render("error", { message: "Error resetting password" });
+    }
+};
+
+// Resend OTP for Forgot Password
+const resendOtp = async (req, res) => {
+    try {
+        const resetData = req.session.passwordReset;
+
+        if (!resetData || !resetData.email) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Session expired. Please try again." 
+            });
+        }
+
+        const newOtp = generateOtp();
+        const emailSent = await sendVerificationEmail(resetData.email, newOtp);
+
+        if (!emailSent) {
+            return res.status(500).json({ 
+                success: false, 
+                message: "Failed to send verification email" 
+            });
+        }
+
+        req.session.passwordReset.otp = newOtp;
+        req.session.passwordReset.otpExpiry = Date.now() + OTP_EXPIRY_TIME;
+
+        res.json({ success: true, message: "OTP resent successfully" });
+    } catch (error) {
+        console.error("Resend OTP error:", error);
+        res.status(500).json({ success: false, message: "Error resending OTP" });
+    }
+};
+
 module.exports = {
     loadHomePage,
     loadSignup,
@@ -344,5 +417,9 @@ module.exports = {
     login,
     logout,
     loadVerifyOtp,
-    resendOtp
+    resendOtp,
+    loadForgotPassword,
+    forgotPassword,
+    loadResetPassword,
+    resetPassword
 };

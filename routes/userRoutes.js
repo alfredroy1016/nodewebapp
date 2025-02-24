@@ -57,4 +57,13 @@ router.get('/auth/google/callback',
     }
 );
 
+router.get("/forgot-password", userController.loadForgotPassword);
+router.post("/forgot-password", userController.forgotPassword);
+router.get("/reset-password/:email", userController.loadResetPassword);
+router.post("/reset-password", userController.resetPassword);
+router.get("/resend-otp", userController.resendOtp);
+
+
+
+
 module.exports = router;
