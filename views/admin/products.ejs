@@ -44,6 +44,7 @@
                             <th>Quantity</th>
                             <th>Offer</th>
                             <th>Status</th>
+                            <th>Edit</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -79,23 +80,18 @@
                                     <% } %>
                                 </td>
                                 <td>
-                                    <div class="btn-group">
-                                        <a href="/admin/edit-product/<%= product._id %>" 
-                                           class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <% if (product.status === 'Blocked') { %>
-                                            <button class="btn btn-sm btn-success" 
-                                                    onclick="updateStatus('<%= product._id %>', 'unblock')">
-                                                <i class="fas fa-unlock"></i>
-                                            </button>
-                                        <% } else { %>
-                                            <button class="btn btn-sm btn-danger" 
-                                                    onclick="updateStatus('<%= product._id %>', 'block')">
-                                                <i class="fas fa-lock"></i>
-                                            </button>
-                                        <% } %>
-                                    </div>
+                                    <a href="/admin/edit-product/<%= product._id %>" 
+                                       class="btn btn-sm btn-primary" aria-label="Edit Product">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm <%= product.status === 'Blocked' ? 'btn-success' : 'btn-danger' %>" 
+                                        onclick="updateStatus('<%= product._id %>', '<%= product.status === 'Blocked' ? 'unblock' : 'block' %>')"
+                                        aria-label="<%= product.status === 'Blocked' ? 'Unblock' : 'Block' %> Product">
+                                        <i class="fas <%= product.status === 'Blocked' ? 'fa-unlock' : 'fa-lock' %>"></i>
+                                    </button>
+                                    
                                 </td>
                             </tr>
                         <% }); %>
@@ -104,24 +100,27 @@
             </div>
         </div>
     </div>
+
+    <!-- Pagination -->
     <div class="container mt-3">
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center mb-20" style="margin-right: 200px;">
                 <% for (let i = 1; i <= (typeof totalPages !== 'undefined' ? totalPages : 1); i++) { %>
                     <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
-                        <a class="page-link" href="/admin/products?page=<%= i %>&search=<%= searchQuery %>"><%= i %></a>
+                        <a class="page-link" href="/admin/products?page=<%= i %>&search=<%= searchQuery || '' %>">
+                            <%= i %>
+                        </a>
                     </li>
                 <% } %>
             </ul>
         </nav>
-        
     </div>
 </div>
 
 <!-- Scripts -->
 <script>
-    function updateStatus(productId, action) {
-        Swal.fire({
+    async function updateStatus(productId, action) {
+        const confirmation = await Swal.fire({
             title: 'Are you sure?',
             text: `Do you want to ${action} this product?`,
             icon: 'warning',
@@ -129,84 +128,131 @@
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, proceed!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/admin/update-product-status/${productId}/${action}`;
-            }
         });
+
+        if (confirmation.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/update-product-status/${productId}/${action}`, { method: 'POST' });
+                const result = await response.json();
+
+                if (response.ok) {
+                    Swal.fire('Success!', result.message, 'success')
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire('Error!', result.error || 'Something went wrong.', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error!', 'Failed to update status.', 'error');
+            }
+        }
     }
 
-    function addOffer(productId) {
-        Swal.fire({
+    async function addOffer(productId) {
+        const { value: offerPrice } = await Swal.fire({
             title: 'Add Offer',
             input: 'number',
             inputLabel: 'Enter offer price',
             showCancelButton: true,
-            inputValidator: (value) => {
-                if (!value || value <= 0) {
-                    return 'Please enter a valid offer price!';
-                }
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/admin/add-offer/${productId}/${result.value}`;
-            }
+            inputValidator: (value) => (!value || value <= 0) ? 'Please enter a valid offer price!' : null
         });
+
+        if (offerPrice) {
+            try {
+                const response = await fetch(`/admin/add-offer/${productId}`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ offerPrice })
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    Swal.fire('Success!', result.message, 'success')
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire('Error!', result.message || 'Something went wrong.', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error!', 'Failed to add offer.', 'error');
+            }
+        }
     }
 
-    function removeOffer(productId) {
-        Swal.fire({
+    async function removeOffer(productId) {
+        const confirmation = await Swal.fire({
             title: 'Remove Offer',
             text: 'Are you sure you want to remove this offer?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Yes, remove it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/admin/remove-offer/${productId}`;
-            }
         });
-    }
 
-    function addOffer(productId) {
-    Swal.fire({
-        title: 'Add Offer',
-        input: 'number',
-        inputLabel: 'Enter offer price',
-        showCancelButton: true,
-        inputValidator: (value) => {
-            if (!value || value <= 0) {
-                return 'Please enter a valid offer price!';
+        if (confirmation.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/remove-offer/${productId}`, { method: 'POST' });
+                const result = await response.json();
+
+                if (response.ok) {
+                    Swal.fire('Success!', result.message, 'success')
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire('Error!', result.error || 'Something went wrong.', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error!', 'Failed to remove offer.', 'error');
             }
         }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = `/admin/add-offer/${productId}/${result.value}`;
-        }
-    });
-}
-
-
-function removeOffer(productId) {
-    Swal.fire({
-        title: 'Remove Offer',
-        text: 'Are you sure you want to remove this offer?',
-        icon: 'warning',
+    }
+// ✅ Update Product Status (Block/Unblock)
+async function updateStatus(productId, action) {
+    const result = await Swal.fire({
+        title: `Are you sure?`,
+        text: `You are about to ${action} this product.`,
+        icon: "warning",
         showCancelButton: true,
-        confirmButtonText: 'Yes, remove it!'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = `/admin/remove-offer/${productId}`;
-        }
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: `Yes, ${action} it!`,
     });
+
+    if (!result.isConfirmed) return;
+
+    try {
+        const response = await fetch(`/admin/update-product-status/${productId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                title: "Success!",
+                text: result.message,
+                icon: "success",
+                timer: 2000,
+                showConfirmButton: false,
+            }).then(() => {
+                location.reload(); // Refresh the page after status change
+            });
+        } else {
+            Swal.fire("Error", result.error, "error");
+        }
+    } catch (error) {
+        Swal.fire("Oops!", "Something went wrong. Please try again.", "error");
+    }
 }
+
+
+
+
 
 </script>
 
-<!-- Add Font Awesome if not already included -->
+
+<!-- External Libraries -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-<!-- Add SweetAlert2 -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <%- include("../../views/partials/admin/footer") %>

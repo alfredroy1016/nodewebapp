@@ -23,6 +23,7 @@ router.get("/unblockCustomer/:id", adminAuth, customerController.customerUnblock
 router.get("/category", adminAuth, categoryController.categoryInfo);
 router.post("/addCategory", adminAuth, categoryController.addCategory);
 router.post("/toggleCategoryStatus", categoryController.toggleCategoryStatus);
+router.get("/editCategory/:id",adminAuth,categoryController.getEditCategory)
 router.post("/updateCategory/:id", categoryController.updateCategory);
 
 // 🔹 Brand Management
@@ -37,9 +38,11 @@ router.get("/addProduct", adminAuth, productController.getProductAddPage);
 router.post("/addProduct", upload.array("productImages", 4), productController.addProduct);
 router.get("/edit-product/:id", adminAuth, productController.getEditProductPage)
 router.post("/update-product/:id", upload.single("productImage"), productController.updateProduct);
-router.post("/delete-product/:id", productController.deleteProduct);
-router.post('/add-offer/:productId', productController.addOffer);
-router.post('/remove-offer/:productId', productController.removeOffer);
+router.delete("/delete-product/:id", productController.deleteProduct);
+router.post("/add-offer/:productId", productController.addOffer);
+router.post("/remove-offer/:productId", productController.removeOffer);
+router.patch("/update-product-status/:productId", productController.updateProductStatus);
+
 
 
 

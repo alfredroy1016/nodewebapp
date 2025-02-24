@@ -139,12 +139,13 @@ const updateCategory = async (req, res) => {
         const { name, description } = req.body;
         await Category.findByIdAndUpdate(req.params.id, { name, description });
 
-        res.redirect("/admin/category"); // Redirect back to category list
+        res.json({ success: true, message: "Category updated successfully!" });
     } catch (error) {
         console.error("Error updating category:", error);
-        res.status(500).send("Internal Server Error");
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
 module.exports = {
     categoryInfo,
     addCategory,

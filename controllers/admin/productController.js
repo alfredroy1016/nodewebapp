@@ -158,6 +158,10 @@ const deleteProduct = async (req, res) => {
         const { id } = req.params;
         const product = await Product.findById(id);
 
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
         if (product?.images?.length) {
             product.images.forEach(image => {
                 const imagePath = path.join(__dirname, "../public", image);
@@ -171,7 +175,7 @@ const deleteProduct = async (req, res) => {
         res.redirect("/admin/products");
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: "Internal Server Error" });
     }
 };
 
@@ -190,6 +194,10 @@ const addOffer = async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
 
+        if (!product.salePrice) {
+            return res.status(400).json({ message: 'Sale price is missing' });
+        }
+
         if (offerPrice >= product.salePrice) {
             return res.status(400).json({ message: 'Offer price must be less than the sale price' });
         }
@@ -197,7 +205,7 @@ const addOffer = async (req, res) => {
         product.offerPrice = offerPrice;
         await product.save();
 
-        res.redirect('/admin/products');
+        res.json({ message: 'Offer added successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -208,20 +216,52 @@ const addOffer = async (req, res) => {
 const removeOffer = async (req, res) => {
     try {
         const { productId } = req.params;
-        const product = await Product.findById(productId);
 
+        const product = await Product.findById(productId);
         if (!product) {
-            return res.status(404).json({ message: "Product not found" });
+            return res.status(404).json({ error: "Product not found" });
         }
 
-        // ✅ Only remove offerPrice, don't change salePrice/regularPrice
-        product.offerPrice = null;
+        if (!product.regularPrice) {
+            return res.status(400).json({ error: "Regular price is missing" });
+        }
+
+        product.salePrice = product.regularPrice;
+        product.offerPrice = undefined; // Remove the offer price
+
         await product.save();
 
-        res.redirect("/admin/products");
+        res.json({ message: "Offer removed successfully" });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
+        console.error("Error removing offer:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 };
-module.exports = { getProductAddPage, getProducts, addProduct, updateProduct, deleteProduct, addOffer, removeOffer ,getEditProductPage};
+
+const updateProductStatus = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const { action } = req.body;
+
+        if (!["block", "unblock"].includes(action)) {
+            return res.status(400).json({ error: "Invalid action" });
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
+        product.status = action === "block" ? "Blocked" : "Active";
+        await product.save();
+
+        res.json({ message: `Product ${action}ed successfully!` });
+    } catch (error) {
+        console.error("❌ Error updating product status:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+
+
+module.exports = { getProductAddPage, getProducts, addProduct, updateProduct, deleteProduct, addOffer, removeOffer ,getEditProductPage, updateProductStatus};
