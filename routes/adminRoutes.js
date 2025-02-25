@@ -41,7 +41,7 @@ router.post("/update-product/:id", upload.single("productImage"), productControl
 router.delete("/delete-product/:id", productController.deleteProduct);
 router.post("/add-offer/:productId", productController.addOffer);
 router.post("/remove-offer/:productId", productController.removeOffer);
-router.patch("/update-product-status/:productId", productController.updateProductStatus);
+router.post("/update-product-status/:productId/:action",productController.updateProductStatus);
 
 
 

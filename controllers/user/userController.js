@@ -193,9 +193,12 @@ const login = async (req, res) => {
             return res.status(400).json({ message: 'Invalid password' });
         }
         if (user.isBlocked) {
+            console.log('user is blcoked')
             return res.status(400).json({ message: 'User is blocked' });
         }
-
+        if(user.googleId){
+            return res.status(400).json({ message: 'Please login with google' });
+        }
 
         // Store user information in session
         req.session.user = {

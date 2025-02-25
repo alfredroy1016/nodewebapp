@@ -44,6 +44,8 @@ app.use(express.static('public'));
 app.use("/", userRouter);
 app.use("/admin",adminRouter)
 
+app.use('/uploads', express.static('public/uploads'));
+
 
 // 404 error handling
 app.use((req, res, next) => {

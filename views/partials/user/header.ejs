@@ -53,30 +53,45 @@
                     </nav>
                 </div>
                 <div class="col-lg-3 col-md-3">
-                   <div class="header__nav__option">
+                 <!-- User Profile Dropdown -->
+<div class="header__user">
     <% if (user) { %>
-        <!-- Display user profile dropdown if logged in -->
         <div class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <img src="/public/img/icon/user.png" alt="">
-                <%= user.name %>
+            <a href="#" class="dropdown-toggle user-dropdown" data-toggle="dropdown">
+                <span class="user-name"><%= user.name %></span>
             </a>
-            <ul class="dropdown-menu">
-                <li><a href="/profile">Profile</a></li>
-                <li><a href="/orders">Orders</a></li>
-                <li><a href="/logout" class="logout-button">Logout</a></li>
+            <ul class="dropdown-menu dropdown-menu-right user-dropdown-menu">
+                <li>
+                    <a href="/profile">
+                        <i class="fa fa-user-circle"></i> Profile
+                    </a>
+                </li>
+                <li>
+                    <a href="/orders">
+                        <i class="fa fa-shopping-bag"></i> Orders
+                    </a>
+                </li>
+                <li>
+                    <a href="/logout" class="logout-button">
+                        <i class="fa fa-sign-out"></i> Logout
+                    </a>
+                </li>
             </ul>
         </div>
     <% } else { %>
-        <!-- Display sign-up and login links if not logged in -->
-        <a href="/signup" class="btn btn-primary">Sign Up</a>
+        <a href="/signup" class="btn-primary">Sign Up</a>
     <% } %>
-    <a href="#" class="search-switch"><img src="/public/img/icon/search.png" alt=""></a>
-    <a href="#"><img src="/public/img/icon/heart.png" alt=""></a>
-    <a href="#"><img src="/public/img/icon/cart.png" alt=""> <span>0</span></a>
-    <div class="price">$0.00</div>
+
+
+    <!-- <div> <a href="#" class="search-switch"><img src="/public/img/icon/search.png" alt=""></a>
+        <a href="#"><img src="/public/img/icon/heart.png" alt=""></a>
+        <a href="#"><img src="/public/img/icon/cart.png" alt=""> <span>0</span></a>
+        <div class="price">$0.00</div></div>
+                    </div> -->
 </div>
-                </div>
+   
+</div>
+
             </div>
             <div class="canvas__open"><i class="fa fa-bars"></i></div>
         </div>

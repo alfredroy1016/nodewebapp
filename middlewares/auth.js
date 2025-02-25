@@ -3,13 +3,16 @@ const User = require("../models/userSchema");
 const userAuth = async (req, res, next) => {
     try {
         if (!req.session.user) {
+            console.log('no usser')
             return res.redirect("/login");
         }
 
         const user = await User.findById(req.session.user);
         if (user && !user.isBlocked) {
+            console.log("user",user)
             return next();
         } else {
+            
             return res.redirect("/login");
         }
     } catch (error) {

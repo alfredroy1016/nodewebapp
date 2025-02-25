@@ -474,66 +474,65 @@ function validateForm() {
     isValid = false;
 }
 
-    if (isValid) {
-        // Create FormData object for multipart/form-data submission
-        const formData = new FormData(document.querySelector('form'));
-
-        
-        // Add processed images to form data
-        uploadedFiles.forEach((file, index) => {
-            // Convert base64 to blob if the image was cropped
-            if (file.cropped) {
-                const imageBlob = dataURLToBlob(file.cropped);
-                formData.append("productImages", imageBlob, `product-images-${index}.jpg`);
-
-            } else {
-                formData.append("productImages", file.file);
-
-            }
-        });
-
-        // Optional: Show loading state
-        const submitButton = document.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Adding Product...';
-
-        // Submit the form using fetch
-        fetch('/admin/addProduct', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Redirect to products list or show success message
-                window.location.href = '/admin/products?success=true';
-            } else {
-                // Show error message
-                const errorDiv = document.getElementById('form-error');
-                errorDiv.textContent = data.message || 'Failed to add product. Please try again.';
-                errorDiv.style.display = 'block';
-                
-                // Reset button state
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Add Product';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Show error message and reset button state
-            const errorDiv = document.getElementById('form-error');
-            errorDiv.textContent = 'An error occurred. Please try again.';
-            errorDiv.style.display = 'block';
-            
-            submitButton.disabled = false;
-            submitButton.innerHTML = 'Add Product';
-        });
-
-        // Prevent default form submission
-        return false;
+if (isValid) {
+    if (uploadedFiles.length === 0) {
+        const errorDiv = document.getElementById('form-error');
+        errorDiv.textContent = 'Please upload at least one product image.';
+        errorDiv.style.display = 'block';
+        return false; // Stop form submission
     }
 
-    return isValid;
+    // Create FormData object for multipart/form-data submission
+    const formData = new FormData(document.querySelector('form'));
+
+    // Add processed images to form data
+    uploadedFiles.forEach((file, index) => {
+        if (file.cropped) {
+            const imageBlob = dataURLToBlob(file.cropped);
+            formData.append("productImages", imageBlob, `product-images-${index}.jpg`);
+        } else {
+            formData.append("productImages", file.file);
+        }
+    });
+
+    // Optional: Show loading state
+    const submitButton = document.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Adding Product...';
+
+    // Submit the form using fetch
+    fetch('/admin/addProduct', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = '/admin/products?success=true';
+        } else {
+            const errorDiv = document.getElementById('form-error');
+            errorDiv.textContent = data.message || 'Failed to add product. Please try again.';
+            errorDiv.style.display = 'block';
+
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Add Product';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        const errorDiv = document.getElementById('form-error');
+        errorDiv.textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'block';
+
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Add Product';
+    });
+
+    return false; // Prevent default form submission
+}
+
+return isValid;
+
 }
 
 // Helper function to convert base64 to blob

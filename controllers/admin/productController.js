@@ -53,28 +53,27 @@ const addProduct = async (req, res) => {
         console.log("🔹 Add Product Request Body:", req.body);
         console.log("🔹 Uploaded Files:", req.files);
 
-        const { name, description, regularPrice, salePrice, brand, category, quantity, color } = req.body;
+       // Inside your addProduct controller:
+const { name, description, regularPrice, salePrice, brand, category, quantity, color } = req.body;
+let imagePath = "";
+if (req.files && req.files.length > 0) {
+    // For a single image, you might do:
+    imagePath = `/uploads/products/${req.files[0].filename}`;
+}
 
-        // Check required fields
-        if (!name || !description || !regularPrice || !brand || !category || !quantity || !color) {
-            return res.status(400).json({ error: "All required fields must be filled" });
-        }
+const newProduct = new Product({
+    name,
+    description,
+    regularPrice,
+    salePrice,
+    brand,
+    category,
+    quantity,
+    color,
+    image: imagePath, // Assign the image path here
+    // If you have a field for multiple images, you might assign it to an array as well
+});
 
-        // Handle images
-        let imagePaths = req.files?.map(file => `/uploads/products/${file.filename}`) || [];
-
-        // Create product
-        const newProduct = new Product({
-            name,
-            description,
-            regularPrice,
-            salePrice: salePrice || null,
-            brand,
-            category,
-            quantity,
-            color,
-            images: imagePaths,
-        });
 
         await newProduct.save();
         console.log("✅ Product added successfully!");
@@ -213,35 +212,11 @@ const addOffer = async (req, res) => {
 };
 
 // ✅ Remove Offer
-const removeOffer = async (req, res) => {
-    try {
-        const { productId } = req.params;
 
-        const product = await Product.findById(productId);
-        if (!product) {
-            return res.status(404).json({ error: "Product not found" });
-        }
-
-        if (!product.regularPrice) {
-            return res.status(400).json({ error: "Regular price is missing" });
-        }
-
-        product.salePrice = product.regularPrice;
-        product.offerPrice = undefined; // Remove the offer price
-
-        await product.save();
-
-        res.json({ message: "Offer removed successfully" });
-    } catch (error) {
-        console.error("Error removing offer:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-};
 
 const updateProductStatus = async (req, res) => {
     try {
-        const { productId } = req.params;
-        const { action } = req.body;
+        const { productId, action } = req.params; // ✅ Read action from params
 
         if (!["block", "unblock"].includes(action)) {
             return res.status(400).json({ error: "Invalid action" });
@@ -262,6 +237,24 @@ const updateProductStatus = async (req, res) => {
     }
 };
 
+const removeOffer = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
+        product.offerPrice = null; // Remove the offer price
+        await product.save();
+
+        res.json({ message: "Offer removed successfully!" });
+    } catch (error) {
+        console.error("❌ Error removing offer:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
 
 
-module.exports = { getProductAddPage, getProducts, addProduct, updateProduct, deleteProduct, addOffer, removeOffer ,getEditProductPage, updateProductStatus};
+module.exports = { getProductAddPage, getProducts, addProduct, updateProduct, deleteProduct, addOffer, removeOffer ,getEditProductPage, updateProductStatus,removeOffer};

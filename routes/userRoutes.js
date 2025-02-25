@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require("../controllers/user/userController");
 const passport = require('passport');
-
+const {userAuth} =require("../middlewares/auth")
 
 const isAuthenticated = (req, res, next) => {
 
