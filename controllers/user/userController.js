@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require('bcrypt');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-
+const Product = require("../../models/productSchema")
 // Constants
 const OTP_EXPIRY_TIME = 10 * 60 * 1000; // 10 minutes
 const SALT_ROUNDS = 10;
@@ -58,14 +58,16 @@ async function sendVerificationEmail(email, otp) {
 // Load Home Page
 const loadHomePage = async (req, res) => {
     try {
+        const products = await Product.find(); // Fetch products from DB
         const user = await User.findById(req.session.userId);
-        console.log(user)
-        return res.render("home",{user:user||null});
+
+        return res.render("home", { user: user || null, products: products || [] });
     } catch (error) {
         console.error("Error loading home page:", error);
         return res.status(500).render("error", { message: "Internal server error" });
     }
 };
+
 
 // Load Signup Page
 const loadSignup = async (req, res) => {
