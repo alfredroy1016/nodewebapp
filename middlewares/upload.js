@@ -19,7 +19,10 @@ const storage = multer.diskStorage({
             uploadPath += "brands/";
         } else if (file.fieldname === "document") {
             uploadPath += "documents/";
+        }else if (file.fieldname === "bannerImage") {  // ✅ Added Banner Support
+            uploadPath += "banners/";
         }
+
 
         createFolder(uploadPath);
         cb(null, uploadPath);

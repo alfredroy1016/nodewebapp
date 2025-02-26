@@ -6,7 +6,9 @@ const customerController = require("../controllers/admin/customerController");
 const productController = require("../controllers/admin/productController");
 const { getBrands, addBrand, toggleBrandStatus, deleteBrand } = require('../controllers/admin/brandController');
 const { adminAuth } = require("../middlewares/auth");
+const { loadBannersPage } = require("../controllers/admin/bannerController.js ");
 const upload = require('../middlewares/upload'); // Multer for image uploads
+const bannerController = require("../controllers/admin/bannerController.js ");
 
 // 🔹 Admin Authentication
 router.get("/login", adminController.loadLogin);
@@ -43,6 +45,10 @@ router.post("/add-offer/:productId", productController.addOffer);
 router.post("/remove-offer/:productId", productController.removeOffer);
 router.post("/update-product-status/:productId/:action",productController.updateProductStatus);
 
+router.get("/banners",adminAuth,bannerController.loadBannersPage);
+router.get("/add-banner", adminAuth, bannerController.loadAddBannerPage);
+router.post("/add-banner", upload.single("bannerImage"),bannerController.addBanner);
+router.delete("/delete-banner/:id", adminAuth, bannerController.deleteBanner);
 
 
 
